@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Deliveryman Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: Arial,sans-serif; background:#f4f6fb; margin:0; padding:24px; }
+  .wrap { max-width: 1000px; margin:auto; }
+  table { width:100%; border-collapse: collapse; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,.05); margin-top:16px; }
+  th, td { padding:12px; border-bottom:1px solid #e5e7eb; text-align:left; }
+  th { background:#f0f4f8; }
+  .btn { padding:6px 10px; border:none; border-radius:6px; cursor:pointer; font-weight:600; text-decoration:none; display:inline-block; }
+  .primary { background:#2563eb; color:#fff; }
+  .secondary { background:#6b7280; color:#fff; }
+  form { margin:0; display:inline-block; }
+  .top-actions { margin-bottom:16px; display:flex; gap:12px; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>🚚 Delivery Orders</h2>
+
+    <div class="top-actions">
+      <!-- Button to go to complete delivery page -->
+      <a href="{{ url_for('dm_complete_order_page') }}" class="btn secondary">Go to Complete Delivery</a>
+      <!-- Button to go back to home -->
+      <a href="{{ url_for('home') }}" class="btn primary">← Back to Home</a>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Contact</th>
+          <th>Delivery Address</th>
+          <th>Package Type</th>
+          <th>Qty</th>
+          <th>Weight</th>
+          <th>Notes</th>
+          <th>Accept Order</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td>{{ o.id }}</td>
+          <td>{{ o.customer_name }}</td>
+          <td>{{ o.customer_phone }}</td>
+          <td>{{ o.delivery_address }}</td>
+          <td>{{ o.package_type }}</td>
+          <td>{{ o.quantity }}</td>
+          <td>{{ o.weight_kg }} kg</td>
+          <td>{{ o.notes or "-" }}</td>
+          <td>
+            {% if not o.deliveryman_id %}
+            <form action="{{ url_for('dm_accept_order', order_id=o.id) }}" method="POST">
+              <input name="deliveryman_id" placeholder="Your ID" required>
+              <button class="btn primary" type="submit">Accept</button>
+            </form>
+            {% else %}
+            <span>Accepted by {{ o.deliveryman_id }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

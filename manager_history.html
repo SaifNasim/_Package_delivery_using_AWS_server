@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Order History</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {font-family: system-ui, Arial; background:#ffffff; margin:0; padding:24px;}
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    table { width:100%; border-collapse: collapse; margin-top: 12px; background:#fff; border:1px solid #e5e7eb; border-radius: 12px; overflow:hidden;}
+    th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align:left; font-size:14px; }
+    th { background:#334155; color:#fff; }
+    .accepted { color:#065f46; font-weight:800; }
+    .denied { color:#991b1b; font-weight:800; }
+    a.back { display:inline-block; margin-bottom:14px; text-decoration:none; color:#2563eb; font-weight:700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="{{ url_for('manager_dashboard') }}">← Back</a>
+    <h2>📜 Order History</h2>
+
+    {% if orders %}
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Type / Qty / Days</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for o in orders %}
+        <tr>
+          <td style="font-family:monospace;">{{ o.id }}</td>
+          <td>{{ o.customer_name }}</td>
+          <td>{{ o.package_type }} / {{ o.quantity }} / {{ o.duration_days }}</td>
+          <td>${{ '%.2f'|format(o.total_price) }}</td>
+          <td class="{{ o.status }}">{{ o.status|capitalize }}</td>
+          <td>{{ o.created_at }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>No history yet.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

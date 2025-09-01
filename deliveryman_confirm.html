@@ -1,0 +1,23 @@
+<h1>Confirm Deliveries</h1>
+<h2>My Pending Deliveries</h2>
+<table border="1" cellpadding="10">
+    <tr>
+        <th>ID</th><th>Customer</th><th>Product</th><th>Quantity</th>
+        <th>Address</th><th>Action</th>
+    </tr>
+    {% for d in deliveries %}
+    <tr>
+        <td>{{ d.id }}</td>
+        <td>{{ d.customer_name }}</td>
+        <td>{{ d.product_name }}</td>
+        <td>{{ d.quantity }}</td>
+        <td>{{ d.delivery_address }}</td>
+        <td>
+            <form action="{{ url_for('complete_delivery', order_id=d.id) }}" method="post">
+                <button type="submit">Mark as Delivered</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<a href="{{ url_for('deliveryman_dashboard') }}">Back to Dashboard</a>

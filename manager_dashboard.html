@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Manager Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {font-family: system-ui, Arial; background:#0b1220; color:#e5e7eb; margin:0; padding:24px;}
+    .wrap { max-width: 1000px; margin: 0 auto; }
+    h2 { margin: 0 0 16px; }
+    .nav { display:flex; gap:12px; margin-top:10px; }
+    a.btn { background:#1f2937; color:#e5e7eb; padding:12px 14px; text-decoration:none; border-radius:12px; border:1px solid #374151; position:relative; }
+    a.btn:hover { background:#111827; }
+    .badge { position:absolute; top:-8px; left:-8px; background:#ef4444; color:#fff; font-weight:800; font-size:12px; padding:4px 8px; border-radius:999px; border:2px solid #0b1220; }
+    a.back { display:inline-block; margin-bottom:14px; color:#93c5fd; text-decoration:none; font-weight:700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="{{ url_for('home') }}">← Back to Home</a>
+    <h2>📊 Manager Dashboard</h2>
+    <div class="nav">
+      <a class="btn" href="{{ url_for('manager_orders') }}">
+        Orders
+        {% if pending_count > 0 %}
+          <span id="badge" class="badge">{{ pending_count }}</span>
+        {% endif %}
+      </a>
+      <a class="btn" href="{{ url_for('manager_history') }}">Order History</a>
+    </div>
+  </div>
+
+  <script>
+    async function refreshBadge() {
+      try {
+        const res = await fetch("{{ url_for('manager_pending_count') }}");
+        const data = await res.json();
+        const existing = document.getElementById('badge');
+        if (data.pending > 0) {
+          if (existing) existing.textContent = data.pending;
+          else {
+            const link = document.querySelector('a.btn[href="{{ url_for("manager_orders") }}"]');
+            const span = document.createElement('span');
+            span.className = 'badge';
+            span.id = 'badge';
+            span.textContent = data.pending;
+            link.appendChild(span);
+          }
+        } else {
+          if (existing) existing.remove();
+        }
+      } catch (e) {}
+    }
+    setInterval(refreshBadge, 5000); // refresh every 5s
+  </script>
+</body>
+</html>

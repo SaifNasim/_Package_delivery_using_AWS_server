@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pending Orders</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {font-family: system-ui, Arial; background:#fafafa; margin:0; padding:24px;}
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    table { width:100%; border-collapse: collapse; margin-top: 12px; background:#fff; border:1px solid #e5e7eb; border-radius: 12px; overflow:hidden;}
+    th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align:left; font-size:14px; }
+    th { background:#111827; color:#fff; }
+    .actions { display:flex; gap:8px; }
+    button { padding:8px 10px; border:none; border-radius:8px; cursor:pointer; font-weight:700; }
+    .accept { background:#22c55e; color:#052e15; }
+    .reject { background:#ef4444; color:#3b0a0a; }
+    a.back { display:inline-block; margin-bottom:14px; text-decoration:none; color:#2563eb; font-weight:700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="{{ url_for('manager_dashboard') }}">← Back</a>
+    <h2>📦 Pending Orders</h2>
+
+    {% if orders %}
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Contact</th>
+          <th>Pickup → Delivery</th>
+          <th>Type / Qty / Days</th>
+          <th>Weight (kg)</th>
+          <th>Fragile</th>
+          <th>Price</th>
+          <th>Created</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for o in orders %}
+        <tr>
+          <td style="font-family:monospace;">{{ o.id }}</td>
+          <td>{{ o.customer_name }}</td>
+          <td>
+            {{ o.customer_email }}<br>
+            {{ o.customer_phone }}
+          </td>
+          <td>
+            {{ o.pickup_address }}<br>
+            → {{ o.delivery_address }}
+          </td>
+          <td>{{ o.package_type }} / {{ o.quantity }} / {{ o.duration_days }}</td>
+          <td>{{ o.weight_kg }}</td>
+          <td>{{ 'Yes' if o.fragile else 'No' }}</td>
+          <td>${{ '%.2f'|format(o.total_price) }}</td>
+          <td>{{ o.created_at }}</td>
+          <td>
+            <form class="actions" action="{{ url_for('order_action') }}" method="POST">
+              <input type="hidden" name="order_id" value="{{ o.id }}">
+              <button class="accept" name="action" value="accept">Accept</button>
+              <button class="reject" name="action" value="reject">Reject</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>No pending orders.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

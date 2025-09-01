@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Order Placed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {font-family: system-ui, Arial; background:#ecfdf5; margin:0; padding:24px;}
+    .wrap { max-width: 720px; margin: 0 auto; }
+    .card { background:#fff; border:1px solid #d1fae5; border-radius: 14px; padding: 18px; box-shadow: 0 6px 16px rgba(0,0,0,.06);}
+    .ok { color:#065f46; }
+    a.back { display:inline-block; margin-top:12px; text-decoration:none; color:#2563eb; font-weight:700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h2 class="ok">✅ Order Placed Successfully!</h2>
+      <p><b>Name:</b> {{ order.customer_name }}</p>
+      <p><b>Type:</b> {{ order.package_type }}</p>
+      <p><b>Quantity:</b> {{ order.quantity }}</p>
+      <p><b>Duration:</b> {{ order.duration_days }} day(s)</p>
+      <p><b>Total Price:</b> ${{ '%.2f'|format(order.total_price) }}</p>
+      <p><b>Status:</b> {{ order.status|capitalize }}</p>
+      <a class="back" href="{{ url_for('home') }}">← Back to Home</a>
+    </div>
+  </div>
+</body>
+</html>

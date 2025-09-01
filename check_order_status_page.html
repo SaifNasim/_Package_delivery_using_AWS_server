@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Check Order Status</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f6fb; margin:0; padding:24px; }
+    .wrap { max-width: 500px; margin:auto; background:#fff; padding:24px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.06); }
+    h2 { color:#2563eb; margin-bottom:16px; }
+    label { display:block; margin-top:12px; font-weight:600; }
+    input { width:100%; padding:10px; margin-top:6px; border-radius:8px; border:1px solid #d1d5db; }
+    .btn { margin-top:20px; padding:10px 16px; border:none; border-radius:8px; font-weight:700; cursor:pointer; background:#2563eb; color:#fff; }
+    .btn:hover { background:#1d4ed8; }
+    .back { display:inline-block; margin-top:16px; color:#2563eb; text-decoration:none; font-weight:700; }
+    .back:hover { text-decoration:underline; }
+    .status { margin-top:16px; font-size:16px; font-weight:700; }
+    .completed { color:#10b981; }
+    .pending { color:#f59e0b; }
+    .error { color:red; margin-top:12px; font-weight:700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>📦 Check Order Status</h2>
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form action="{{ url_for('check_order_status') }}" method="POST">
+      <label for="order_id">Enter your Order ID</label>
+      <input type="number" name="order_id" id="order_id" required placeholder="Order ID">
+      <button type="submit" class="btn">Check Status</button>
+    </form>
+
+    {% if result %}
+      <div class="status">
+        Order ID: {{ result.id }}<br>
+        Status:
+        {% if result.delivery_status == 'completed' %}
+          <span class="completed">✅ Completed</span>
+        {% else %}
+          <span class="pending">⏳ {{ result.delivery_status or 'Pending' }}</span>
+        {% endif %}<br>
+        Estimated Cost: ${{ result.total_price or 'N/A' }}
+      </div>
+    {% endif %}
+
+    <a href="{{ url_for('customer_dashboard') }}" class="back">← Back to Dashboard</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Complete Delivery</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: Arial, sans-serif; background:#f4f6fb; margin:0; padding:24px; }
+  .wrap { max-width: 500px; margin:auto; background:#fff; padding:24px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,.06); }
+  h2 { margin-bottom:20px; color:#2563eb; }
+  label { display:block; margin-top:12px; font-weight:600; }
+  input { width:100%; padding:10px; margin-top:6px; border-radius:8px; border:1px solid #d1d5db; }
+  .btn { margin-top:20px; padding:10px 16px; border:none; border-radius:8px; font-weight:700; cursor:pointer; }
+  .primary { background:#2563eb; color:#fff; transition: background 0.2s; }
+  .primary:hover { background:#1d4ed8; }
+  .error { color:red; margin-top:12px; }
+  .success { color:#065f46; background:#d1fae5; padding:10px; border-radius:8px; margin-top:12px; }
+  .back { display:inline-block; margin-top:16px; color:#2563eb; text-decoration:none; font-weight:700; }
+  .back:hover { text-decoration:underline; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>🚚 Complete Delivery</h2>
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form action="{{ url_for('dm_complete_order') }}" method="POST">
+      <label for="deliveryman_id">Your Deliveryman ID</label>
+      <input type="text" name="deliveryman_id" id="deliveryman_id" required placeholder="Enter your ID">
+
+      <label for="order_id">Order ID</label>
+      <input type="number" name="order_id" id="order_id" required placeholder="Enter Order ID">
+
+      <button type="submit" class="btn primary">Mark Delivery Completed</button>
+    </form>
+
+    <a href="{{ url_for('deliveryman_dashboard') }}" class="back">← Back to Dashboard</a>
+  </div>
+
+  {% if success %}
+  <script>
+    alert("{{ success }}");
+  </script>
+  {% endif %}
+</body>
+</html>

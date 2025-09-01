@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Customer Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {font-family: system-ui, Arial; background:#f4f6fb; margin:0; padding:24px;}
+    .wrap { max-width: 980px; margin: 0 auto; }
+    h2 { margin: 0 0 16px; }
+    .card { background:#fff; border:1px solid #e5e7eb; border-radius: 14px; padding: 18px; box-shadow: 0 6px 16px rgba(0,0,0,.06);}
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px; }
+    label { font-weight: 600; font-size: 14px; }
+    input, select, textarea { width:100%; padding:10px; border:1px solid #d1d5db; border-radius:8px; margin-top:6px; }
+    textarea { min-height: 80px; resize: vertical; }
+    .row { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; }
+    .actions { display:flex; gap:10px; align-items:center; margin-top: 12px; flex-wrap: wrap; }
+    .btn { padding: 10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:700; }
+    .primary { background:#2563eb; color:#fff; }
+    .muted { background:#e5e7eb; }
+    .price { font-size: 18px; font-weight:700; color:#065f46; }
+    .back { margin-bottom: 16px; display:inline-block; text-decoration:none; color:#2563eb; font-weight:700; }
+    small.help { color:#6b7280; display:block; margin-top:4px; }
+
+    /* New button at top */
+    .status-btn { display:inline-block; margin-bottom:16px; background:#10b981; color:#fff; text-decoration:none; padding:10px 16px; border-radius:8px; font-weight:700; }
+    .status-btn:hover { background:#059669; }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <a class="back" href="{{ url_for('home') }}">← Back to Home</a>
+
+    <!-- Check Order Status button -->
+    <a href="{{ url_for('check_order_status_page') }}" class="status-btn">Check Order Status</a>
+
+    <h2>📦 Place an Order</h2>
+    <div class="card">
+      <form action="{{ url_for('place_order') }}" method="POST" id="orderForm" novalidate>
+        <div class="grid">
+          <div>
+            <label for="customer_name">Your Name</label>
+            <input id="customer_name" name="customer_name" placeholder="Jane Doe" required>
+          </div>
+          <div>
+            <label for="customer_email">Email</label>
+            <input id="customer_email" name="customer_email" type="email" placeholder="jane@example.com" required>
+          </div>
+          <div>
+            <label for="customer_phone">Phone</label>
+            <input id="customer_phone" name="customer_phone" placeholder="+8801XXXXXXXXX" pattern="[\d+\-\s()]{6,}" required>
+            <small class="help">Include country code if possible.</small>
+          </div>
+
+          <div style="grid-column: span 2;">
+            <label for="delivery_address">Delivery Address</label>
+            <input id="delivery_address" name="delivery_address" placeholder="House, Road, Area, City" required>
+          </div>
+          <div>
+            <label for="preferred_pickup_date">Preferred Delivery Date</label>
+            <input id="preferred_pickup_date" name="preferred_pickup_date" type="date">
+          </div>
+
+          <div>
+            <label for="package_type">Package Type</label>
+            <select id="package_type" name="package_type">
+              <option value="Standard">Standard</option>
+              <option value="Express">Express</option>
+              <option value="Premium">Premium</option>
+            </select>
+            <small class="help">Express/Premium are faster and cost more.</small>
+          </div>
+          <div>
+            <label for="quantity">Quantity</label>
+            <input id="quantity" name="quantity" type="number" min="1" value="1" required>
+          </div>
+          <div>
+            <label for="duration_days">Duration (days)</label>
+            <input id="duration_days" name="duration_days" type="number" min="1" value="1" required>
+            <small class="help">5+ days may get a discount.</small>
+          </div>
+
+          <div>
+            <label for="weight_kg">Weight (kg)</label>
+            <input id="weight_kg" name="weight_kg" type="number" min="0" step="0.01" value="0">
+          </div>
+          <div>
+            <label>Dimensions (cm)</label>
+            <div class="row">
+              <input name="length_cm" id="length_cm" type="number" min="0" step="0.1">
+              <input name="width_cm"  id="width_cm"  type="number" min="0" step="0.1" >
+              <input name="height_cm" id="height_cm" type="number" min="0" step="0.1" >
+            </div>
+            <small class="help">Optional but helps with accurate pricing.</small>
+          </div>
+          <div>
+            <label for="fragile">Fragile?</label>
+            <input id="fragile" name="fragile" type="checkbox">
+          </div>
+
+          <div style="grid-column: 1/-1;">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" placeholder="Anything the manager/delivery team should know?"></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn muted" id="previewBtn">Preview Price</button>
+          <div class="price" id="priceBox" aria-live="polite"></div>
+          <button class="btn primary" type="submit">Submit Order</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function fmt(n){ try { return Number(n).toFixed(2); } catch(_) { return n; } }
+
+    async function previewPrice() {
+      const body = {
+        package_type: document.getElementById('package_type').value,
+        quantity: +document.getElementById('quantity').value || 1,
+        duration_days: +document.getElementById('duration_days').value || 1,
+        weight_kg: +document.getElementById('weight_kg').value || 0,
+        fragile: document.getElementById('fragile').checked
+      };
+      const box = document.getElementById('priceBox');
+      try {
+        const res = await fetch("{{ url_for('customer_price_preview') }}", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.ok) box.textContent = "Estimated Price: $" + fmt(data.price);
+        else box.textContent = "Could not compute price.";
+      } catch (e) {
+        box.textContent = "Error fetching price.";
+      }
+    }
+    document.getElementById('previewBtn').addEventListener('click', previewPrice);
+  </script>
+</body>
+</html>
